@@ -95,9 +95,9 @@ const alerts = [
 ]
 
 const aiInsights = [
-  { text: "3 projects (Phoenix, Orion, Zenith) are at risk. Reallocation recommended.", action: "View Projects" },
-  { text: "Consider re-allocating 12 bench resources. Potential saving: ₹1.2M/month.", action: "View Resources" },
-  { text: "Increase pricing for 2 accounts. Potential margin improvement: 4.6%.", action: "View Accounts" },
+  { text: "3 projects (Phoenix, Orion, Zenith) are at risk. Reallocation recommended.", action: "View Projects", href: "/projects/risks" },
+  { text: "Consider re-allocating 12 bench resources. Potential saving: ₹1.2M/month.", action: "View Resources", href: "/workforce/bench" },
+  { text: "Increase pricing for 2 accounts. Potential margin improvement: 4.6%.", action: "View Accounts", href: "/clients/profitability" },
 ]
 
 function QuickActions() {
@@ -212,9 +212,9 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium">
+            <Link href="/projects" className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium block text-center">
               View All Projects
-            </button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -243,9 +243,9 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium">
+            <Link href="/pnl/profit-loss" className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium block text-center">
               View Full P&L Statement
-            </button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -260,9 +260,9 @@ export default function DashboardPage() {
                 <span className="text-sm font-medium w-12 text-right">{client.margin}%</span>
               </div>
             ))}
-            <button className="w-full mt-2 text-sm text-brand-500 hover:text-brand-600 font-medium">
+            <Link href="/clients" className="w-full mt-2 text-sm text-brand-500 hover:text-brand-600 font-medium block text-center">
               View All Clients
-            </button>
+            </Link>
           </div>
         </ChartCard>
 
@@ -290,9 +290,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 mb-4">
-              <button className="px-3 py-1 text-xs font-medium rounded-md bg-brand-500 text-white">Approvals (5)</button>
-              <button className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Tasks (8)</button>
-              <button className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Information (3)</button>
+              <Link href="/notifications" className="px-3 py-1 text-xs font-medium rounded-md bg-brand-500 text-white">Approvals (5)</Link>
+              <Link href="/notifications" className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Tasks (8)</Link>
+              <Link href="/notifications" className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Information (3)</Link>
             </div>
             <div className="space-y-3">
               <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50">
@@ -322,9 +322,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            <button className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium">
+            <Link href="/notifications" className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium block text-center">
               View All Tasks
-            </button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -334,9 +334,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 mb-4">
-              <button className="px-3 py-1 text-xs font-medium rounded-md bg-brand-500 text-white">Recommendations</button>
-              <button className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Anomalies</button>
-              <button className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Predictions</button>
+              <Link href="/ai" className="px-3 py-1 text-xs font-medium rounded-md bg-brand-500 text-white">Recommendations</Link>
+              <Link href="/ai/anomalies" className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Anomalies</Link>
+              <Link href="/ai/predictions" className="px-3 py-1 text-xs font-medium rounded-md text-muted-foreground hover:bg-muted">Predictions</Link>
             </div>
             <div className="space-y-3">
               {aiInsights.map((insight, i) => (
@@ -346,14 +346,14 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm">{insight.text}</p>
-                    <button className="text-xs text-brand-500 font-medium mt-1">{insight.action}</button>
+                    <Link href={insight.href} className="text-xs text-brand-500 font-medium mt-1 inline-block">{insight.action}</Link>
                   </div>
                 </div>
               ))}
             </div>
-            <button className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium">
+            <Link href="/ai" className="w-full mt-4 text-sm text-brand-500 hover:text-brand-600 font-medium block text-center">
               Go to AI Insights
-            </button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -362,7 +362,7 @@ export default function DashboardPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Recent Alerts</CardTitle>
-                <button className="text-xs text-brand-500 font-medium">View All</button>
+                <Link href="/notifications" className="text-xs text-brand-500 font-medium">View All</Link>
               </div>
             </CardHeader>
             <CardContent>
