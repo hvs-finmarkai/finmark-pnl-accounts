@@ -6,9 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Download, FileText } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
+import { useToast } from "@/components/shared/toast-provider"
+import { downloadCSV } from "@/lib/download"
 
 export default function BoardDeckPage() {
   const [data, setData] = useState<any>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetch("/api/dashboard").then(r => r.json()).then(setData)
@@ -16,12 +19,27 @@ export default function BoardDeckPage() {
 
   if (!data) return <div className="p-8 text-center text-muted-foreground">Loading...</div>
 
+  function handleExportPDF() {
+    const exportData = [
+      { Metric: "Total Revenue", Value: data.kpis.revenue },
+      { Metric: "Gross Margin", Value: `${data.kpis.grossMargin}%` },
+      { Metric: "Active Projects", Value: data.kpis.activeProjects },
+      { Metric: "At Risk Projects", Value: data.kpis.atRiskProjects },
+      ...(data.topClients?.slice(0, 5).map((c: any) => ({
+        Metric: `Client: ${c.name}`,
+        Value: c.revenue || c.contractValue,
+      })) || []),
+    ]
+    downloadCSV(exportData, "board_deck_summary")
+    toast("Board deck exported", "success")
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Board Deck"
         description="Executive summary for board presentation"
-        actions={<Button><Download className="h-4 w-4 mr-2" />Export PDF</Button>}
+        actions={<Button onClick={handleExportPDF}><Download className="h-4 w-4 mr-2" />Export PDF</Button>}
       />
 
       <Card>

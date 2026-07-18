@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Target, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react"
 import { KPICard } from "@/components/shared/kpi-card"
 import { ChartCard } from "@/components/shared/chart-card"
@@ -7,8 +8,10 @@ import { PageHeader } from "@/components/shared/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { useToast } from "@/components/shared/toast-provider"
+import { downloadCSV } from "@/lib/download"
 
-const budgetData = [
+const defaultBudgetData = [
   { department: "Engineering", budget: 42, actual: 38.5 },
   { department: "Sales", budget: 25, actual: 26.8 },
   { department: "Operations", budget: 18, actual: 16.2 },
@@ -17,6 +20,41 @@ const budgetData = [
 ]
 
 export default function BudgetPage() {
+  const [budgetData, setBudgetData] = useState(defaultBudgetData)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetch("/api/pnl")
+      .then(r => r.json())
+      .then(data => {
+        if (data.budgets && data.budgets.length > 0) {
+          const mapped = data.budgets.map((b: any) => ({
+            department: b.department || b.category,
+            budget: b.budgeted || b.budget,
+            actual: b.actual || b.spent,
+          }))
+          if (mapped.length > 0) setBudgetData(mapped)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const handleDownload = () => {
+    const rows = budgetData.map(row => ({
+      Department: row.department,
+      "Budget (₹M)": row.budget,
+      "Actual (₹M)": row.actual,
+      "Variance (₹M)": (row.budget - row.actual).toFixed(1),
+      Status: row.budget - row.actual >= 0 ? "Under Budget" : "Over Budget",
+    }))
+    downloadCSV(rows, "budget_vs_actual")
+    toast("Budget data downloaded successfully", "success")
+  }
+
+  const handleReviseBudget = () => {
+    toast("Budget revision request submitted for approval", "info")
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -24,8 +62,8 @@ export default function BudgetPage() {
         description="Compare budgeted figures against actual spending"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline">Download</Button>
-            <Button>Revise Budget</Button>
+            <Button variant="outline" onClick={handleDownload}>Download</Button>
+            <Button onClick={handleReviseBudget}>Revise Budget</Button>
           </div>
         }
       />

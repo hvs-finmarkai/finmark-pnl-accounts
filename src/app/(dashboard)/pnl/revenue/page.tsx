@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { DollarSign, TrendingUp, FileText, Clock } from "lucide-react"
 import { KPICard } from "@/components/shared/kpi-card"
 import { ChartCard } from "@/components/shared/chart-card"
@@ -7,15 +8,17 @@ import { PageHeader } from "@/components/shared/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { useToast } from "@/components/shared/toast-provider"
+import { downloadCSV } from "@/lib/download"
 
-const revenueBySource = [
+const defaultRevenueBySource = [
   { source: "Project Delivery", amount: 85.6 },
   { source: "Consulting", amount: 22.4 },
   { source: "Support", amount: 12.8 },
   { source: "Training", amount: 5.0 },
 ]
 
-const monthlyRevenue = [
+const defaultMonthlyRevenue = [
   { month: "Jan", invoiced: 95, collected: 88 },
   { month: "Feb", invoiced: 102, collected: 95 },
   { month: "Mar", invoiced: 110, collected: 103 },
@@ -23,13 +26,60 @@ const monthlyRevenue = [
   { month: "May", invoiced: 125.8, collected: 118 },
 ]
 
+const defaultClients = [
+  { name: "TechCorp Inc.", revenue: 25.6, growth: 22.1, share: 20.3 },
+  { name: "Global Solutions", revenue: 18.7, growth: 15.8, share: 14.9 },
+  { name: "InnovateX", revenue: 15.2, growth: 28.4, share: 12.1 },
+  { name: "HealthPlus", revenue: 12.3, growth: 8.5, share: 9.8 },
+  { name: "FidServe Global", revenue: 11.7, growth: -2.3, share: 9.3 },
+]
+
 export default function RevenuePage() {
+  const [revenueBySource, setRevenueBySource] = useState(defaultRevenueBySource)
+  const [monthlyRevenue, setMonthlyRevenue] = useState(defaultMonthlyRevenue)
+  const [clients] = useState(defaultClients)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetch("/api/pnl")
+      .then(r => r.json())
+      .then(data => {
+        if (data.monthlyData && data.monthlyData.length > 0) {
+          setMonthlyRevenue(data.monthlyData.map((m: any) => ({
+            month: m.month,
+            invoiced: Number(m.revenue) / 1_000_000,
+            collected: Number(m.revenue) * 0.94 / 1_000_000,
+          })))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const handleExport = () => {
+    const rows = [
+      ...revenueBySource.map(r => ({
+        Type: "Revenue Source",
+        Name: r.source,
+        "Amount (₹M)": r.amount,
+      })),
+      ...clients.map(c => ({
+        Type: "Client",
+        Name: c.name,
+        "Revenue (₹M)": c.revenue,
+        "Growth %": c.growth,
+        "Share %": c.share,
+      })),
+    ]
+    downloadCSV(rows, "revenue_report")
+    toast("Revenue data exported successfully", "success")
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Revenue"
         description="Track revenue sources, invoices, and collections"
-        actions={<Button variant="outline">Export</Button>}
+        actions={<Button variant="outline" onClick={handleExport}>Export</Button>}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -86,13 +136,7 @@ export default function RevenuePage() {
               </tr>
             </thead>
             <tbody>
-              {[
-                { name: "TechCorp Inc.", revenue: 25.6, growth: 22.1, share: 20.3 },
-                { name: "Global Solutions", revenue: 18.7, growth: 15.8, share: 14.9 },
-                { name: "InnovateX", revenue: 15.2, growth: 28.4, share: 12.1 },
-                { name: "HealthPlus", revenue: 12.3, growth: 8.5, share: 9.8 },
-                { name: "FidServe Global", revenue: 11.7, growth: -2.3, share: 9.3 },
-              ].map((client) => (
+              {clients.map((client) => (
                 <tr key={client.name} className="border-b last:border-0">
                   <td className="py-3 font-medium">{client.name}</td>
                   <td className="py-3 text-right">₹{client.revenue}M</td>

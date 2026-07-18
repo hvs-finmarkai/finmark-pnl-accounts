@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { StatusPill } from "@/components/shared/status-pill"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
+import { useRouter } from "next/navigation"
 
 const allocationByDept = [
   { name: "Engineering", value: 40, color: "#3B82F6" },
@@ -28,6 +29,8 @@ const allocationRules = [
 ]
 
 export default function CostAllocationPage() {
+  const router = useRouter()
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -35,8 +38,8 @@ export default function CostAllocationPage() {
         description="Manage shared cost allocation across departments and projects"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline">Run Simulation</Button>
-            <Button>New Rule</Button>
+            <Button variant="outline" onClick={() => router.push("/costs/simulation")}>Run Simulation</Button>
+            <Button onClick={() => router.push("/costs/rules")}>New Rule</Button>
           </div>
         }
       />

@@ -5,9 +5,12 @@ import { PageHeader } from "@/components/shared/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
+import { useToast } from "@/components/shared/toast-provider"
+import { downloadCSV } from "@/lib/download"
 
 export default function ProfitLossPage() {
   const [data, setData] = useState<any>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetch("/api/pnl").then(r => r.json()).then(setData)
@@ -15,14 +18,34 @@ export default function ProfitLossPage() {
 
   if (!data) return <div className="p-8 text-center text-muted-foreground">Loading...</div>
 
-  const { summary } = data
+  const { summary, statement } = data
+
+  const handleExportPDF = () => {
+    const rows = statement?.length
+      ? statement.map((row: any) => ({
+          Particular: row.particular,
+          Actual: row.actual,
+          Budget: row.budget,
+          Variance: row.variance,
+          "Variance %": row.variancePercent,
+        }))
+      : [
+          { Particular: "Revenue", Amount: summary.revenue, "% of Revenue": "100%" },
+          { Particular: "Direct Costs", Amount: summary.directCosts, "% of Revenue": `${((summary.directCosts / summary.revenue) * 100).toFixed(1)}%` },
+          { Particular: "Gross Profit", Amount: summary.grossProfit, "% of Revenue": `${summary.grossMargin}%` },
+          { Particular: "Indirect Costs", Amount: summary.indirectCosts, "% of Revenue": `${((summary.indirectCosts / summary.revenue) * 100).toFixed(1)}%` },
+          { Particular: "Net Profit", Amount: summary.netProfit, "% of Revenue": `${summary.netMargin}%` },
+        ]
+    downloadCSV(rows, "profit_loss_statement")
+    toast("P&L statement exported successfully", "success")
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Profit & Loss Statement"
         description="Detailed P&L breakdown for current fiscal period"
-        actions={<Button variant="outline">Export PDF</Button>}
+        actions={<Button variant="outline" onClick={handleExportPDF}>Export PDF</Button>}
       />
 
       <Card>

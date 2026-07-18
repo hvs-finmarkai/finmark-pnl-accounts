@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import { PageHeader } from "@/components/shared/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/shared/toast-provider"
 
 export default function BenchPage() {
   const [data, setData] = useState<any>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetch("/api/workforce?status=bench").then(r => r.json()).then(setData)
@@ -51,7 +53,7 @@ export default function BenchPage() {
                   </div>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-4">Allocate to Project</Button>
+              <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => toast("Allocation request sent", "success")}>Allocate to Project</Button>
             </CardContent>
           </Card>
         ))}

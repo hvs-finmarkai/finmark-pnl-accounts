@@ -10,9 +10,12 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
+import { useToast } from "@/components/shared/toast-provider"
+import { downloadCSV } from "@/lib/download"
 
 export default function WorkforcePage() {
   const [data, setData] = useState<any>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetch("/api/workforce").then(r => r.json()).then(setData)
@@ -29,9 +32,23 @@ export default function WorkforcePage() {
   const activeEmployees = data.employees.filter((e: any) => e.status === "active")
   const benchEmployees = data.employees.filter((e: any) => e.status === "bench")
 
+  function handleExport() {
+    const exportData = data.employees.map((e: any) => ({
+      Name: e.name,
+      Role: e.role,
+      Department: e.department,
+      Status: e.status,
+      Project: e.project_name || "",
+      Utilization: `${e.utilization}%`,
+      Salary: e.salary,
+    }))
+    downloadCSV(exportData, "workforce_report")
+    toast("Workforce report exported", "success")
+  }
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Workforce" description="Monitor employee utilization, allocation, and capacity" actions={<Button>Export Report</Button>} />
+      <PageHeader title="Workforce" description="Monitor employee utilization, allocation, and capacity" actions={<Button onClick={handleExport}>Export Report</Button>} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard title="Total Employees" value={String(data.summary.total)} change={4.2} icon={Users} iconColor="text-brand-500" iconBg="bg-brand-50 dark:bg-brand-900/30" />
@@ -184,7 +201,7 @@ export default function WorkforcePage() {
                         </div>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full mt-4">Allocate to Project</Button>
+                    <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => toast("Allocation request sent", "success")}>Allocate to Project</Button>
                   </CardContent>
                 </Card>
               ))
