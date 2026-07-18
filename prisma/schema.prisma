@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  admin
+  manager
+  analyst
+  viewer
+}
+
+enum ProjectStatus {
+  planning
+  in_progress
+  completed
+  on_hold
+  at_risk
+}
+
+enum ClientStatus {
+  active
+  inactive
+  at_risk
+}
+
+enum TransactionType {
+  revenue
+  expense
+}
+
+enum InvoiceStatus {
+  draft
+  pending
+  paid
+  overdue
+  cancelled
+}
+
+enum AllocationStatus {
+  pending
+  approved
+  rejected
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  name          String
+  passwordHash  String    @map("password_hash")
+  role          UserRole  @default(viewer)
+  department    String?
+  avatarUrl     String?   @map("avatar_url")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  managedProjects Project[]      @relation("ProjectManager")
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  workflows       Workflow[]
+
+  @@map("users")
+}
+
+model Organization {
+  id              Int      @id @default(autoincrement())
+  name            String
+  industry        String?
+  country         String   @default("India")
+  currency        String   @default("INR")
+  fiscalYearStart String   @default("April") @map("fiscal_year_start")
+  logoUrl         String?  @map("logo_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("organizations")
+}
+
+model Client {
+  id             Int          @id @default(autoincrement())
+  name           String
+  industry       String?
+  region         String?
+  status         ClientStatus @default(active)
+  contractValue  Float        @default(0) @map("contract_value")
+  healthScore    Float        @default(85) @map("health_score")
+  contactPerson  String?      @map("contact_person")
+  contactEmail   String?      @map("contact_email")
+  phone          String?
+  address        String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  projects     Project[]
+  contracts    Contract[]
+  invoices     Invoice[]
+  transactions Transaction[]
+
+  @@map("clients")
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String
+  clientId    Int           @map("client_id")
+  managerId   Int           @map("manager_id")
+  status      ProjectStatus @default(planning)
+  priority    String        @default("medium")
+  budget      Float         @default(0)
+  startDate   DateTime?     @map("start_date")
+  endDate     DateTime?     @map("end_date")
+  progress    Int           @default(0)
+  description String?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  client       Client        @relation(fields: [clientId], references: [id])
+  manager      User          @relation("ProjectManager", fields: [managerId], references: [id])
+  employees    Employee[]
+  invoices     Invoice[]
+  transactions Transaction[]
+
+  @@map("projects")
+}
+
+model Employee {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String?
+  department  String?
+  role        String?
+  salary      Float    @default(0)
+  utilization Float    @default(0)
+  status      String   @default("active")
+  skills      String?
+  projectId   Int?     @map("project_id")
+  hireDate    DateTime? @map("hire_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@map("employees")
+}
+
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  date        DateTime
+  description String?
+  category    String?
+  type        TransactionType
+  amount      Float
+  clientId    Int?            @map("client_id")
+  projectId   Int?            @map("project_id")
+  status      String          @default("posted")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  client  Client?  @relation(fields: [clientId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@map("transactions")
+}
+
+model Budget {
+  id         Int      @id @default(autoincrement())
+  category   String
+  department String?
+  month      String
+  budgeted   Float
+  actual     Float    @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("budgets")
+}
+
+model Contract {
+  id        Int      @id @default(autoincrement())
+  clientId  Int      @map("client_id")
+  name      String
+  value     Float
+  startDate DateTime? @map("start_date")
+  endDate   DateTime? @map("end_date")
+  status    String   @default("active")
+  type      String   @default("fixed")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@map("contracts")
+}
+
+model Invoice {
+  id            Int           @id @default(autoincrement())
+  clientId      Int           @map("client_id")
+  projectId     Int?          @map("project_id")
+  invoiceNumber String        @map("invoice_number")
+  amount        Float
+  dueDate       DateTime?     @map("due_date")
+  paidDate      DateTime?     @map("paid_date")
+  status        InvoiceStatus @default(pending)
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  client  Client   @relation(fields: [clientId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@map("invoices")
+}
+
+model CostAllocation {
+  id            Int              @id @default(autoincrement())
+  costCenter    String           @map("cost_center")
+  driver        String
+  totalCost     Float            @map("total_cost")
+  allocatedCost Float            @default(0) @map("allocated_cost")
+  rule          String?
+  department    String?
+  status        AllocationStatus @default(pending)
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  @@map("cost_allocations")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  type      String
+  title     String
+  message   String?
+  isRead    Boolean  @default(false) @map("is_read")
+  actionUrl String?  @map("action_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model Workflow {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  nodes       String?
+  edges       String?
+  status      String   @default("draft")
+  createdBy   Int      @map("created_by")
+  executions  Int      @default(0)
+  lastRun     DateTime? @map("last_run")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("workflows")
+}
+
+model Report {
+  id            Int      @id @default(autoincrement())
+  name          String
+  type          String?
+  format        String   @default("pdf")
+  schedule      String   @default("on_demand")
+  lastGenerated DateTime? @map("last_generated")
+  status        String   @default("ready")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("reports")
+}
+
+model Integration {
+  id            Int      @id @default(autoincrement())
+  name          String
+  category      String?
+  status        String   @default("disconnected")
+  lastSync      DateTime? @map("last_sync")
+  recordsSynced Int      @default(0) @map("records_synced")
+  errors        Int      @default(0)
+  config        String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("integrations")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  action     String
+  entityType String?  @map("entity_type")
+  entityId   Int?     @map("entity_id")
+  details    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

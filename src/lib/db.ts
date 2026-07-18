@@ -1,5 +1,7 @@
 import { hashSync } from "bcryptjs"
 
+export const USE_PRISMA = !!process.env.DATABASE_URL
+
 interface DB {
   users: any[]
   clients: any[]
