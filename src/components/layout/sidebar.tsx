@@ -146,20 +146,21 @@ export function Sidebar() {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-border bg-navy-950 text-white transition-all duration-300",
+      "fixed left-0 top-0 z-40 flex h-screen flex-col border-r transition-all duration-300",
+      "bg-white dark:bg-navy-950 text-slate-800 dark:text-white border-border",
       sidebarCollapsed ? "w-[70px]" : "w-[260px]"
     )}>
-      <div className="flex h-16 items-center gap-3 px-4 border-b border-white/10">
+      <div className="flex h-16 items-center gap-3 px-4 border-b border-border">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500">
           <TrendingUp className="h-5 w-5 text-white" />
         </div>
         {!sidebarCollapsed && (
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold truncate">P&L AutoTrack Suite</p>
-            <p className="text-[10px] text-slate-400 truncate">Real-time P&L Automation Platform</p>
+            <p className="text-[10px] text-muted-foreground truncate">Real-time P&L Automation Platform</p>
           </div>
         )}
-        <button onClick={toggleCollapse} className="ml-auto rounded-md p-1 hover:bg-white/10 transition-colors">
+        <button onClick={toggleCollapse} className="ml-auto rounded-md p-1 hover:bg-muted transition-colors">
           <ChevronLeft className={cn("h-4 w-4 transition-transform", sidebarCollapsed && "rotate-180")} />
         </button>
       </div>
@@ -179,7 +180,7 @@ export function Sidebar() {
                       onClick={() => toggleExpand(item.label)}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                        active ? "bg-brand-500/20 text-brand-400" : "text-slate-300 hover:bg-white/5 hover:text-white"
+                        active ? "bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
@@ -195,7 +196,7 @@ export function Sidebar() {
                       href={item.href}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                        active ? "bg-brand-500 text-white shadow-sm" : "text-slate-300 hover:bg-white/5 hover:text-white"
+                        active ? "bg-brand-500 text-white shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
@@ -210,14 +211,14 @@ export function Sidebar() {
                 </div>
 
                 {hasChildren && expanded && !sidebarCollapsed && (
-                  <div className="ml-5 mt-0.5 space-y-0.5 border-l border-white/10 pl-4">
+                  <div className="ml-5 mt-0.5 space-y-0.5 border-l border-border pl-4">
                     {item.children!.map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}
                         className={cn(
                           "block rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                          pathname === child.href ? "text-brand-400 bg-brand-500/10" : "text-slate-400 hover:text-white"
+                          pathname === child.href ? "text-brand-600 dark:text-brand-400 bg-brand-500/10" : "text-muted-foreground hover:text-foreground"
                         )}
                       >
                         {child.label}
@@ -231,20 +232,20 @@ export function Sidebar() {
         </div>
       </nav>
 
-      <div className="border-t border-white/10 px-2 py-3 space-y-0.5">
+      <div className="border-t border-border px-2 py-3 space-y-0.5">
         {bottomNavigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive(item.href) ? "bg-brand-500/20 text-brand-400" : "text-slate-300 hover:bg-white/5 hover:text-white"
+              isActive(item.href) ? "bg-brand-500/10 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400" : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
             <item.icon className="h-5 w-5 shrink-0" />
             {!sidebarCollapsed && <span>{item.label}</span>}
             {item.label === "Notifications" && notifications > 0 && (
-              <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand-500 px-1.5 text-[10px] font-bold">
+              <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand-500 px-1.5 text-[10px] font-bold text-white">
                 {notifications}
               </span>
             )}
@@ -252,10 +253,10 @@ export function Sidebar() {
         ))}
 
         {!sidebarCollapsed && (
-          <div className="mt-2 flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
+          <div className="mt-2 flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               <span>{theme === "dark" ? "Light" : "Dark"}</span>
@@ -292,30 +293,30 @@ function SidebarUserMenu() {
     <div ref={ref} className="relative mt-2">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/5 transition-colors"
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted transition-colors"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white">
           {initials}
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-medium text-white truncate">{displayName}</p>
-          <p className="text-[11px] text-slate-400 capitalize">{displayRole}</p>
+          <p className="text-sm font-medium truncate">{displayName}</p>
+          <p className="text-[11px] text-muted-foreground capitalize">{displayRole}</p>
         </div>
-        <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-2 right-2 mb-1 rounded-lg border border-white/10 bg-navy-900 py-1 shadow-lg">
-          <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+        <div className="absolute bottom-full left-2 right-2 mb-1 rounded-lg border border-border bg-card py-1 shadow-lg">
+          <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
             <Settings className="h-4 w-4" />
             Settings
           </Link>
-          <Link href="/admin/users" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+          <Link href="/admin/users" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
             <UserCog className="h-4 w-4" />
             Manage Users
           </Link>
-          <div className="my-1 border-t border-white/10" />
-          <button onClick={logout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors">
+          <div className="my-1 border-t border-border" />
+          <button onClick={logout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-muted transition-colors">
             <LogOut className="h-4 w-4" />
             Sign Out
           </button>
