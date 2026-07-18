@@ -54,8 +54,10 @@ export const useAppStore = create<AppState>((set) => ({
   logout: () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("user")
-      fetch("/api/auth/logout", { method: "POST" })
-      window.location.href = "/login"
+      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+        window.location.href = "/login"
+      })
     }
     set({ user: null })
   },
