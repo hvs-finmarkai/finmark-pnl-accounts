@@ -56,12 +56,12 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-8 shadow-modal border border-border">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Email address</label>
+              <label className="text-sm font-medium text-foreground">Username</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="arjun@denave.com"
+                placeholder="Username"
                 className="mt-1.5 h-11 w-full rounded-lg border border-border bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 required
               />
@@ -91,10 +91,6 @@ export default function LoginPage() {
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
-          </div>
-
-          <div className="mt-6 text-center text-xs text-muted-foreground">
-            <p>Demo credentials: arjun@denave.com / admin123</p>
           </div>
         </form>
 
