@@ -49,6 +49,14 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Cannot delete the primary admin user" }, { status: 403 })
   }
 
-  await prisma.user.delete({ where: { id } })
-  return NextResponse.json({ message: "User deleted successfully" })
+  try {
+    await prisma.notification.deleteMany({ where: { userId: id } })
+    await prisma.auditLog.deleteMany({ where: { userId: id } })
+    await prisma.workflow.updateMany({ where: { createdBy: id }, data: { createdBy: 1 } })
+    await prisma.project.updateMany({ where: { managerId: id }, data: { managerId: 1 } })
+    await prisma.user.delete({ where: { id } })
+    return NextResponse.json({ message: "User deleted successfully" })
+  } catch (error: any) {
+    return NextResponse.json({ error: "Failed to delete user: " + error.message }, { status: 500 })
+  }
 }
