@@ -3,15 +3,15 @@
 import { useEffect } from "react"
 import { useAppStore } from "@/lib/store"
 import { AppShell } from "@/components/layout/app-shell"
+import { ToastProvider } from "@/components/shared/toast-provider"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { setTheme, setUser, theme } = useAppStore()
+  const { setTheme, setUser } = useAppStore()
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
     const t = savedTheme || "dark"
     setTheme(t)
-    document.documentElement.classList.toggle("dark", t === "dark")
 
     const savedUser = localStorage.getItem("user")
     if (savedUser) {
@@ -19,5 +19,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [setTheme, setUser])
 
-  return <AppShell>{children}</AppShell>
+  return (
+    <ToastProvider>
+      <AppShell>{children}</AppShell>
+    </ToastProvider>
+  )
 }

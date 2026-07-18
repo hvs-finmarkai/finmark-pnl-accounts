@@ -1,56 +1,104 @@
 "use client"
 
-import { useState } from "react"
-import { Search, Plus, Filter, MoreVertical } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Search, Plus, Filter, MoreVertical, X } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { Button } from "@/components/ui/button"
 import { StatusPill } from "@/components/shared/status-pill"
-import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-
-const clients = [
-  { id: "1", name: "TechCorp Inc.", geography: "North America", revenue: 25.6, margin: 28.5, status: "active" as const },
-  { id: "2", name: "Global Solutions Ltd.", geography: "Europe", revenue: 18.7, margin: 31.2, status: "active" as const },
-  { id: "3", name: "InnovateX", geography: "APAC", revenue: 15.2, margin: 26.7, status: "active" as const },
-  { id: "4", name: "HealthPlus", geography: "North America", revenue: 12.3, margin: 23.1, status: "active" as const },
-  { id: "5", name: "FidServe Global", geography: "Europe", revenue: 11.7, margin: 19.7, status: "at-risk" as const },
-  { id: "6", name: "EduMind", geography: "APAC", revenue: 8.6, margin: 18.3, status: "at-risk" as const },
-]
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useToast } from "@/components/shared/toast-provider"
+import { formatCurrency } from "@/lib/utils"
 
 export default function ClientsPage() {
-  const [filter, setFilter] = useState<"all" | "active" | "at-risk">("all")
+  const { toast } = useToast()
+  const [clients, setClients] = useState<any[]>([])
+  const [filter, setFilter] = useState("all")
+  const [search, setSearch] = useState("")
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ name: "", industry: "", region: "", contract_value: "" })
 
-  const filteredClients = filter === "all" ? clients : clients.filter((c) => c.status === filter)
+  useEffect(() => {
+    loadClients()
+  }, [filter, search])
+
+  function loadClients() {
+    const params = new URLSearchParams()
+    if (filter !== "all") params.set("status", filter)
+    if (search) params.set("search", search)
+    fetch(`/api/clients?${params}`).then(r => r.json()).then(setClients)
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault()
+    const res = await fetch("/api/clients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, contract_value: parseFloat(form.contract_value) || 0 }),
+    })
+    if (res.ok) {
+      toast("Client created successfully")
+      setShowForm(false)
+      setForm({ name: "", industry: "", region: "", contract_value: "" })
+      loadClients()
+    }
+  }
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Clients"
         description="Manage client relationships and track profitability"
-        actions={<Button><Plus className="h-4 w-4 mr-2" />New Client</Button>}
+        actions={<Button onClick={() => setShowForm(!showForm)}>{showForm ? <><X className="h-4 w-4 mr-2" />Cancel</> : <><Plus className="h-4 w-4 mr-2" />New Client</>}</Button>}
       />
 
-      <div className="flex items-center justify-between gap-4">
+      {showForm && (
+        <Card>
+          <CardHeader><CardTitle>Add New Client</CardTitle></CardHeader>
+          <CardContent>
+            <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="text-sm font-medium">Client Name *</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" required />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Industry</label>
+                <input value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="Technology, Finance..." />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Region</label>
+                <input value={form.region} onChange={e => setForm({ ...form, region: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="North America, APAC..." />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Contract Value</label>
+                <input type="number" value={form.contract_value} onChange={e => setForm({ ...form, contract_value: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" placeholder="0" />
+              </div>
+              <div className="md:col-span-2 lg:col-span-4">
+                <Button type="submit">Create Client</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
               placeholder="Search clients..."
               className="h-9 w-64 rounded-lg border border-border bg-background pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />Filters
-          </Button>
         </div>
         <div className="flex gap-1 rounded-lg bg-muted p-1">
-          {(["all", "active", "at-risk"] as const).map((f) => (
+          {["all", "active", "at_risk"].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                filter === f ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filter === f ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {f === "all" ? "All" : f === "active" ? "Active" : "At Risk"}
             </button>
@@ -63,15 +111,15 @@ export default function ClientsPage() {
           <thead>
             <tr className="bg-muted/50 border-b">
               <th className="py-3 px-4 text-left font-medium text-muted-foreground">Client Name</th>
-              <th className="py-3 px-4 text-left font-medium text-muted-foreground">Geography</th>
-              <th className="py-3 px-4 text-right font-medium text-muted-foreground">Revenue (₹M)</th>
+              <th className="py-3 px-4 text-left font-medium text-muted-foreground">Industry</th>
+              <th className="py-3 px-4 text-left font-medium text-muted-foreground">Region</th>
+              <th className="py-3 px-4 text-right font-medium text-muted-foreground">Revenue</th>
               <th className="py-3 px-4 text-right font-medium text-muted-foreground">Margin</th>
               <th className="py-3 px-4 text-center font-medium text-muted-foreground">Status</th>
-              <th className="py-3 px-4 text-center font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredClients.map((client) => (
+            {clients.map((client: any) => (
               <tr key={client.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
@@ -81,37 +129,25 @@ export default function ClientsPage() {
                     <span className="font-medium">{client.name}</span>
                   </div>
                 </td>
-                <td className="py-3 px-4 text-muted-foreground">{client.geography}</td>
-                <td className="py-3 px-4 text-right font-medium">₹{client.revenue}M</td>
+                <td className="py-3 px-4 text-muted-foreground">{client.industry || "-"}</td>
+                <td className="py-3 px-4 text-muted-foreground">{client.region || "-"}</td>
+                <td className="py-3 px-4 text-right font-medium">{formatCurrency(client.revenue)}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center justify-end gap-2">
-                    <Progress value={client.margin} max={50} className="w-16 h-1.5" />
+                    <Progress value={parseFloat(client.margin)} max={50} className="w-16 h-1.5" />
                     <span className="font-medium w-12 text-right">{client.margin}%</span>
                   </div>
                 </td>
                 <td className="py-3 px-4 text-center">
-                  <StatusPill status={client.status === "active" ? "on-track" : "at-risk"} label={client.status === "active" ? "Active" : "At Risk"} />
-                </td>
-                <td className="py-3 px-4 text-center">
-                  <button className="p-1 rounded hover:bg-muted">
-                    <MoreVertical className="h-4 w-4 text-muted-foreground" />
-                  </button>
+                  <StatusPill status={client.status === "active" ? "active" : "at-risk"} />
                 </td>
               </tr>
             ))}
+            {clients.length === 0 && (
+              <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No clients found</td></tr>
+            )}
           </tbody>
         </table>
-      </div>
-
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>Showing 1 to {filteredClients.length} of {filteredClients.length} clients</span>
-        <div className="flex gap-1">
-          {[1, 2, 3].map((p) => (
-            <button key={p} className={`h-8 w-8 rounded-md text-xs font-medium ${p === 1 ? "bg-brand-500 text-white" : "hover:bg-muted"}`}>
-              {p}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   )
