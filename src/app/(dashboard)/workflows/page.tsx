@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import {
-  Workflow,
   Zap,
   GitBranch,
   CheckCircle2,
@@ -19,6 +18,7 @@ import {
   RotateCcw,
   RotateCw,
   Maximize2,
+  ArrowDown,
 } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { Button } from "@/components/ui/button"
@@ -36,11 +36,11 @@ const nodeTypes = [
 ]
 
 const sampleFlow = [
-  { id: "1", type: "trigger", label: "Invoice Uploaded", x: 400, y: 80 },
-  { id: "2", type: "condition", label: "Amount > ₹5L", x: 400, y: 180 },
-  { id: "3", type: "approval", label: "Manager Approval", x: 400, y: 280 },
-  { id: "4", type: "notification", label: "Notify Finance", x: 400, y: 380 },
-  { id: "5", type: "database", label: "Update ERP", x: 400, y: 480 },
+  { id: "1", type: "trigger", label: "Invoice Uploaded" },
+  { id: "2", type: "condition", label: "Amount > ₹5L" },
+  { id: "3", type: "approval", label: "Manager Approval" },
+  { id: "4", type: "notification", label: "Notify Finance" },
+  { id: "5", type: "database", label: "Update ERP" },
 ]
 
 export default function WorkflowBuilderPage() {
@@ -61,7 +61,7 @@ export default function WorkflowBuilderPage() {
       />
 
       <div className="flex h-[calc(100vh-14rem)] rounded-xl border border-border overflow-hidden">
-        <div className="w-56 border-r border-border bg-card p-4 overflow-y-auto">
+        <div className="w-56 shrink-0 border-r border-border bg-card p-4 overflow-y-auto">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Nodes</p>
           <div className="space-y-2">
             {nodeTypes.map((node) => (
@@ -70,7 +70,7 @@ export default function WorkflowBuilderPage() {
                 draggable
                 className="flex items-center gap-3 rounded-lg border border-border p-3 cursor-grab hover:bg-muted/50 transition-colors active:cursor-grabbing"
               >
-                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg text-white", node.color)}>
+                <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white", node.color)}>
                   <node.icon className="h-4 w-4" />
                 </div>
                 <span className="text-sm font-medium">{node.label}</span>
@@ -79,8 +79,8 @@ export default function WorkflowBuilderPage() {
           </div>
         </div>
 
-        <div className="flex-1 relative bg-[radial-gradient(circle,hsl(var(--border))_1px,transparent_1px)] bg-[length:20px_20px]">
-          <div className="absolute top-3 left-3 flex items-center gap-1 bg-card rounded-lg border border-border p-1">
+        <div className="flex-1 relative overflow-auto bg-[radial-gradient(circle,hsl(var(--border))_1px,transparent_1px)] bg-[length:20px_20px]">
+          <div className="absolute top-3 left-3 flex items-center gap-1 bg-card rounded-lg border border-border p-1 z-10">
             <button className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted">
               <Plus className="h-3.5 w-3.5" />
             </button>
@@ -99,82 +99,92 @@ export default function WorkflowBuilderPage() {
             </button>
           </div>
 
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {sampleFlow.slice(0, -1).map((node, i) => (
-              <line
-                key={i}
-                x1={node.x}
-                y1={node.y + 30}
-                x2={sampleFlow[i + 1].x}
-                y2={sampleFlow[i + 1].y - 10}
-                stroke="hsl(var(--border))"
-                strokeWidth="2"
-                strokeDasharray="6 3"
-              />
-            ))}
-          </svg>
-
-          {sampleFlow.map((node) => {
-            const nodeType = nodeTypes.find((n) => n.type === node.type)
-            return (
-              <div
-                key={node.id}
-                className={cn(
-                  "absolute flex items-center gap-3 rounded-xl border-2 bg-card px-4 py-3 shadow-card cursor-pointer transition-all hover:shadow-elevated",
-                  selectedNode === node.id ? "border-brand-500 ring-2 ring-brand-500/20" : "border-border"
-                )}
-                style={{ left: node.x - 90, top: node.y - 20 }}
-                onClick={() => setSelectedNode(node.id)}
-              >
-                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg text-white shrink-0", nodeType?.color)}>
-                  {nodeType && <nodeType.icon className="h-4 w-4" />}
+          <div className="flex flex-col items-center justify-start pt-16 pb-8 min-h-full">
+            {sampleFlow.map((node, index) => {
+              const nodeType = nodeTypes.find((n) => n.type === node.type)
+              return (
+                <div key={node.id} className="flex flex-col items-center">
+                  <div
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border-2 bg-card px-5 py-3.5 shadow-card cursor-pointer transition-all hover:shadow-elevated",
+                      selectedNode === node.id ? "border-brand-500 ring-2 ring-brand-500/20" : "border-border"
+                    )}
+                    onClick={() => setSelectedNode(node.id)}
+                  >
+                    <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white", nodeType?.color)}>
+                      {nodeType && <nodeType.icon className="h-4 w-4" />}
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">{nodeType?.label}</p>
+                      <p className="text-sm font-semibold">{node.label}</p>
+                    </div>
+                  </div>
+                  {index < sampleFlow.length - 1 && (
+                    <div className="flex flex-col items-center my-2">
+                      <div className="w-0.5 h-6 bg-border" />
+                      <ArrowDown className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">{nodeType?.label}</p>
-                  <p className="text-sm font-medium">{node.label}</p>
-                </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
 
-        <div className="w-64 border-l border-border bg-card p-4 overflow-y-auto">
+        <div className="w-64 shrink-0 border-l border-border bg-card p-4 overflow-y-auto">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Properties</p>
           {selectedNode ? (
             <div className="space-y-4">
               {(() => {
                 const node = sampleFlow.find((n) => n.id === selectedNode)
+                const nodeType = nodeTypes.find((n) => n.type === node?.type)
                 return (
                   <>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Node Name</label>
-                      <input className="mt-1 h-8 w-full rounded-md border border-border bg-background px-2 text-sm" defaultValue={node?.label} />
+                      <input className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-3 text-sm" defaultValue={node?.label} />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Type</label>
-                      <p className="mt-1 text-sm font-medium capitalize">{node?.type}</p>
+                      <div className="mt-1 flex items-center gap-2">
+                        <div className={cn("flex h-6 w-6 items-center justify-center rounded text-white", nodeType?.color)}>
+                          {nodeType && <nodeType.icon className="h-3 w-3" />}
+                        </div>
+                        <span className="text-sm font-medium capitalize">{node?.type}</span>
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Retry on Failure</label>
-                      <div className="mt-1 flex items-center gap-2">
-                        <input type="checkbox" className="rounded border-border" defaultChecked />
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <input type="checkbox" className="rounded border-border h-4 w-4" defaultChecked />
                         <span className="text-xs">Enabled (3 retries)</span>
                       </div>
                     </div>
                     <div>
+                      <label className="text-xs font-medium text-muted-foreground">Timeout (seconds)</label>
+                      <input type="number" className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-3 text-sm" defaultValue={30} />
+                    </div>
+                    <div>
                       <label className="text-xs font-medium text-muted-foreground">Error Handling</label>
-                      <select className="mt-1 h-8 w-full rounded-md border border-border bg-background px-2 text-sm">
-                        <option>Continue</option>
-                        <option>Stop</option>
-                        <option>Retry</option>
+                      <select className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-3 text-sm">
+                        <option>Continue to next</option>
+                        <option>Stop workflow</option>
+                        <option>Retry then continue</option>
+                        <option>Jump to error handler</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Description</label>
+                      <textarea className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm h-20 resize-none" placeholder="Describe what this node does..." />
                     </div>
                   </>
                 )
               })()}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Select a node to view properties</p>
+            <div className="text-center py-8">
+              <p className="text-sm text-muted-foreground">Select a node to view and edit its properties</p>
+            </div>
           )}
         </div>
       </div>
