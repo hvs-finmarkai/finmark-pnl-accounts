@@ -56,7 +56,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-8 shadow-modal border border-border">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Username</label>
+              <label className="text-sm font-medium text-foreground">Email</label>
               <input
                 type="email"
                 value={email}
