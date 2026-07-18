@@ -46,6 +46,25 @@ export default function UsersPage() {
     loadUsers()
   }
 
+  async function handleDelete(id: number, name: string) {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return
+
+    const res = await fetch("/api/users", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    })
+
+    const data = await res.json()
+    if (!res.ok) {
+      setError(data.error || "Failed to delete user")
+      return
+    }
+
+    setSuccess(`User "${name}" deleted`)
+    loadUsers()
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -143,6 +162,7 @@ export default function UsersPage() {
               <th className="py-3 px-4 text-left font-medium text-muted-foreground">Role</th>
               <th className="py-3 px-4 text-left font-medium text-muted-foreground">Department</th>
               <th className="py-3 px-4 text-center font-medium text-muted-foreground">Status</th>
+              <th className="py-3 px-4 text-center font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -161,6 +181,16 @@ export default function UsersPage() {
                 <td className="py-3 px-4 text-muted-foreground">{user.department || "-"}</td>
                 <td className="py-3 px-4 text-center">
                   <StatusPill status={user.isActive ? "active" : "inactive"} />
+                </td>
+                <td className="py-3 px-4 text-center">
+                  {user.id !== 1 && (
+                    <button
+                      onClick={() => handleDelete(user.id, user.name)}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

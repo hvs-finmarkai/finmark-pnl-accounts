@@ -37,3 +37,18 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ user, message: "User created successfully" }, { status: 201 })
 }
+
+export async function DELETE(request: NextRequest) {
+  const { id } = await request.json()
+
+  if (!id) {
+    return NextResponse.json({ error: "User ID is required" }, { status: 400 })
+  }
+
+  if (id === 1) {
+    return NextResponse.json({ error: "Cannot delete the primary admin user" }, { status: 403 })
+  }
+
+  await prisma.user.delete({ where: { id } })
+  return NextResponse.json({ message: "User deleted successfully" })
+}
