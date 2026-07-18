@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   Sun,
   Moon,
+  LogOut,
   LucideIcon,
 } from "lucide-react"
 
@@ -263,18 +264,63 @@ export function Sidebar() {
         )}
 
         {!sidebarCollapsed && (
-          <div className="mt-2 flex items-center gap-3 rounded-lg px-3 py-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white">
-              AM
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">Arjun Mehta</p>
-              <p className="text-[11px] text-slate-400">CFO</p>
-            </div>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
-          </div>
+          <SidebarUserMenu />
         )}
       </div>
     </aside>
+  )
+}
+
+function SidebarUserMenu() {
+  const { user, logout } = useAppStore()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
+
+  const displayName = user?.name || "Arjun Mehta"
+  const displayRole = user?.role || "CFO"
+  const initials = displayName.split(" ").map((n: string) => n[0]).join("").toUpperCase()
+
+  return (
+    <div ref={ref} className="relative mt-2">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/5 transition-colors"
+      >
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white">
+          {initials}
+        </div>
+        <div className="flex-1 min-w-0 text-left">
+          <p className="text-sm font-medium text-white truncate">{displayName}</p>
+          <p className="text-[11px] text-slate-400 capitalize">{displayRole}</p>
+        </div>
+        <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="absolute bottom-full left-2 right-2 mb-1 rounded-lg border border-white/10 bg-navy-900 py-1 shadow-lg">
+          <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+            <Settings className="h-4 w-4" />
+            Settings
+          </Link>
+          <Link href="/admin/users" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+            <UserCog className="h-4 w-4" />
+            Manage Users
+          </Link>
+          <div className="my-1 border-t border-white/10" />
+          <button onClick={logout} className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors">
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
