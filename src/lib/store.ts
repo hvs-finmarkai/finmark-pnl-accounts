@@ -39,7 +39,11 @@ export const useAppStore = create<AppState>((set) => ({
   toggleCollapse: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   setTheme: (theme) => {
     if (typeof window !== "undefined") {
-      document.documentElement.classList.toggle("dark", theme === "dark")
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark")
+      } else {
+        document.documentElement.classList.remove("dark")
+      }
       localStorage.setItem("theme", theme)
     }
     set({ theme })
