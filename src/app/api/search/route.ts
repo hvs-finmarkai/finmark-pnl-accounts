@@ -1,20 +1,25 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
-  const db = getDb()
   const { searchParams } = new URL(request.url)
   const q = searchParams.get("q")
 
   if (!q || q.length < 2) return NextResponse.json({ results: [] })
 
-  const lower = q.toLowerCase()
+  const [clients, projects, employees] = await Promise.all([
+    prisma.client.findMany({ where: { name: { contains: q, mode: "insensitive" } }, take: 5, select: { id: true, name: true, region: true } }),
+    prisma.project.findMany({ where: { name: { contains: q, mode: "insensitive" } }, take: 5, select: { id: true, name: true, status: true } }),
+    prisma.employee.findMany({ where: { OR: [{ name: { contains: q, mode: "insensitive" } }, { role: { contains: q, mode: "insensitive" } }] }, take: 5, select: { id: true, name: true, department: true } }),
+  ])
 
-  const clients = db.clients.filter(c => c.name.toLowerCase().includes(lower)).slice(0, 5).map(c => ({ id: c.id, name: c.name, type: "client", subtitle: c.region }))
-  const projects = db.projects.filter(p => p.name.toLowerCase().includes(lower)).slice(0, 5).map(p => ({ id: p.id, name: p.name, type: "project", subtitle: p.status }))
-  const employees = db.employees.filter(e => e.name.toLowerCase().includes(lower) || e.role.toLowerCase().includes(lower)).slice(0, 5).map(e => ({ id: e.id, name: e.name, type: "employee", subtitle: e.department }))
-
-  return NextResponse.json({ results: [...clients, ...projects, ...employees] })
+  return NextResponse.json({
+    results: [
+      ...clients.map(c => ({ id: c.id, name: c.name, type: "client", subtitle: c.region })),
+      ...projects.map(p => ({ id: p.id, name: p.name, type: "project", subtitle: p.status })),
+      ...employees.map(e => ({ id: e.id, name: e.name, type: "employee", subtitle: e.department })),
+    ],
+  })
 }

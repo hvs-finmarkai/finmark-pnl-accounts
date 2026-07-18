@@ -1,35 +1,34 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function GET() {
-  const db = getDb()
-  const totalShared = db.cost_allocations.reduce((a, b) => a + b.total_cost, 0)
-  const totalAllocated = db.cost_allocations.reduce((a, b) => a + b.allocated_cost, 0)
-  const pendingCount = db.cost_allocations.filter(c => c.status === "pending").length
+  const allocations = await prisma.costAllocation.findMany({ orderBy: { totalCost: "desc" } })
+  const totalShared = allocations.reduce((a, b) => a + b.totalCost, 0)
+  const totalAllocated = allocations.reduce((a, b) => a + b.allocatedCost, 0)
+  const pendingCount = allocations.filter(c => c.status === "pending").length
 
   return NextResponse.json({
-    allocations: db.cost_allocations,
+    allocations: allocations.map(a => ({ id: a.id, cost_center: a.costCenter, driver: a.driver, total_cost: a.totalCost, allocated_cost: a.allocatedCost, rule: a.rule, department: a.department, status: a.status })),
     summary: { totalShared, totalAllocated, unallocated: totalShared - totalAllocated, pendingApprovals: pendingCount },
   })
 }
 
 export async function POST(request: NextRequest) {
-  const db = getDb()
   const body = await request.json()
 
   if (body.action === "approve") {
-    const item = db.cost_allocations.find(c => c.id === body.id)
-    if (item) item.status = "approved"
+    await prisma.costAllocation.update({ where: { id: body.id }, data: { status: "approved" } })
     return NextResponse.json({ message: "Approved" })
   }
 
   if (body.action === "simulate") {
-    const simulated = db.cost_allocations.map(a => ({
-      ...a,
-      simulated_cost: a.total_cost * (body.factor || 1.1),
-      savings: a.total_cost - a.total_cost * (body.factor || 1.1),
+    const allocations = await prisma.costAllocation.findMany()
+    const simulated = allocations.map(a => ({
+      id: a.id, costCenter: a.costCenter, total_cost: a.totalCost,
+      simulated_cost: a.totalCost * (body.factor || 1.1),
+      savings: a.totalCost - a.totalCost * (body.factor || 1.1),
     }))
     return NextResponse.json({ simulated })
   }

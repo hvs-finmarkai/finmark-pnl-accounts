@@ -1,21 +1,25 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
-  const db = getDb()
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get("client_id")
 
-  let contracts = db.contracts.map(ct => {
-    const client = db.clients.find(c => c.id === ct.client_id)
-    return { ...ct, client_name: client?.name || "" }
+  const where: any = {}
+  if (clientId) where.clientId = parseInt(clientId)
+
+  const contracts = await prisma.contract.findMany({
+    where,
+    include: { client: { select: { name: true } } },
+    orderBy: { startDate: "desc" },
   })
 
-  if (clientId) contracts = contracts.filter(c => c.client_id === parseInt(clientId))
+  const totalActiveValue = await prisma.contract.aggregate({ where: { status: "active" }, _sum: { value: true } })
 
-  const totalActiveValue = db.contracts.filter(c => c.status === "active").reduce((a, b) => a + b.value, 0)
-
-  return NextResponse.json({ contracts, totalActiveValue })
+  return NextResponse.json({
+    contracts: contracts.map(c => ({ ...c, client_name: c.client.name })),
+    totalActiveValue: totalActiveValue._sum.value || 0,
+  })
 }

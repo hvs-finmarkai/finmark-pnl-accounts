@@ -1,26 +1,23 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function GET() {
-  const db = getDb()
-  return NextResponse.json({
-    notifications: db.notifications.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
-    unreadCount: db.notifications.filter(n => n.is_read === 0).length,
-  })
+  const notifications = await prisma.notification.findMany({ where: { userId: 1 }, orderBy: { createdAt: "desc" } })
+  const unreadCount = await prisma.notification.count({ where: { userId: 1, isRead: false } })
+  return NextResponse.json({ notifications, unreadCount })
 }
 
 export async function PATCH(request: NextRequest) {
-  const db = getDb()
   const { id, markAllRead } = await request.json()
 
   if (markAllRead) {
-    db.notifications.forEach(n => { n.is_read = 1 })
+    await prisma.notification.updateMany({ where: { userId: 1 }, data: { isRead: true } })
   } else if (id) {
-    const notif = db.notifications.find(n => n.id === id)
-    if (notif) notif.is_read = 1
+    await prisma.notification.update({ where: { id }, data: { isRead: true } })
   }
 
-  return NextResponse.json({ message: "Updated", unreadCount: db.notifications.filter(n => n.is_read === 0).length })
+  const unreadCount = await prisma.notification.count({ where: { userId: 1, isRead: false } })
+  return NextResponse.json({ message: "Updated", unreadCount })
 }

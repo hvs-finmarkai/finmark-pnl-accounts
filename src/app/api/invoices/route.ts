@@ -1,29 +1,32 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
-  const db = getDb()
   const { searchParams } = new URL(request.url)
   const clientId = searchParams.get("client_id")
   const status = searchParams.get("status")
 
-  let invoices = db.invoices.map(inv => {
-    const client = db.clients.find(c => c.id === inv.client_id)
-    const project = db.projects.find(p => p.id === inv.project_id)
-    return { ...inv, client_name: client?.name || "", project_name: project?.name || "" }
+  const where: any = {}
+  if (clientId) where.clientId = parseInt(clientId)
+  if (status && status !== "all") where.status = status
+
+  const invoices = await prisma.invoice.findMany({
+    where,
+    include: { client: { select: { name: true } }, project: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
   })
 
-  if (clientId) invoices = invoices.filter(i => i.client_id === parseInt(clientId))
-  if (status && status !== "all") invoices = invoices.filter(i => i.status === status)
+  const totals = await prisma.invoice.aggregate({
+    _sum: { amount: true },
+  })
+  const paid = await prisma.invoice.aggregate({ where: { status: "paid" }, _sum: { amount: true } })
+  const pending = await prisma.invoice.aggregate({ where: { status: "pending" }, _sum: { amount: true } })
+  const overdue = await prisma.invoice.aggregate({ where: { status: "overdue" }, _sum: { amount: true } })
 
-  const totals = {
-    total: db.invoices.reduce((a, b) => a + b.amount, 0),
-    paid: db.invoices.filter(i => i.status === "paid").reduce((a, b) => a + b.amount, 0),
-    pending: db.invoices.filter(i => i.status === "pending").reduce((a, b) => a + b.amount, 0),
-    overdue: db.invoices.filter(i => i.status === "overdue").reduce((a, b) => a + b.amount, 0),
-  }
-
-  return NextResponse.json({ invoices, totals })
+  return NextResponse.json({
+    invoices: invoices.map(i => ({ ...i, client_name: i.client.name, project_name: i.project?.name || "" })),
+    totals: { total: totals._sum.amount || 0, paid: paid._sum.amount || 0, pending: pending._sum.amount || 0, overdue: overdue._sum.amount || 0 },
+  })
 }

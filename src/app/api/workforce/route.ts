@@ -1,45 +1,42 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
-  const db = getDb()
   const { searchParams } = new URL(request.url)
   const status = searchParams.get("status")
 
-  let employees = db.employees.map(e => {
-    const project = db.projects.find(p => p.id === e.project_id)
-    return { ...e, project_name: project?.name || null }
+  const where: any = {}
+  if (status && status !== "all") where.status = status
+
+  const employees = await prisma.employee.findMany({
+    where,
+    include: { project: { select: { name: true } } },
+    orderBy: { utilization: "desc" },
   })
 
-  if (status && status !== "all") employees = employees.filter(e => e.status === status)
+  const allEmployees = await prisma.employee.findMany()
+  const active = allEmployees.filter(e => e.status === "active")
+  const bench = allEmployees.filter(e => e.status === "bench")
+  const avgUtil = active.length > 0 ? active.reduce((a, b) => a + b.utilization, 0) / active.length : 0
 
-  const active = db.employees.filter(e => e.status === "active")
-  const bench = db.employees.filter(e => e.status === "bench")
-  const avgUtil = active.length > 0 ? (active.reduce((a, b) => a + b.utilization, 0) / active.length) : 0
-  const totalSalary = db.employees.reduce((a, b) => a + b.salary, 0)
-
-  const byDepartment = Object.entries(
-    db.employees.reduce((acc: any, e) => {
-      if (!acc[e.department]) acc[e.department] = { count: 0, total_util: 0, total_salary: 0 }
-      acc[e.department].count++
-      acc[e.department].total_util += e.utilization
-      acc[e.department].total_salary += e.salary
-      return acc
-    }, {})
-  ).map(([department, data]: any) => ({ department, count: data.count, avg_util: data.total_util / data.count, total_salary: data.total_salary }))
+  const byDepartment = await prisma.employee.groupBy({
+    by: ["department"],
+    _count: { id: true },
+    _avg: { utilization: true },
+    _sum: { salary: true },
+  })
 
   const skillMap: Record<string, number> = {}
-  db.employees.forEach(e => {
-    if (e.skills) e.skills.split(",").forEach((s: string) => { skillMap[s.trim()] = (skillMap[s.trim()] || 0) + 1 })
+  allEmployees.forEach(e => {
+    if (e.skills) e.skills.split(",").forEach(s => { skillMap[s.trim()] = (skillMap[s.trim()] || 0) + 1 })
   })
-  const skills = Object.entries(skillMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count)
 
   return NextResponse.json({
-    employees,
-    summary: { total: db.employees.length, active: active.length, bench: bench.length, avgUtilization: avgUtil.toFixed(1), totalMonthlyCost: totalSalary, billable: active.length },
-    byDepartment,
-    skills,
+    employees: employees.map(e => ({ ...e, project_name: e.project?.name || null })),
+    summary: { total: allEmployees.length, active: active.length, bench: bench.length, avgUtilization: avgUtil.toFixed(1), totalMonthlyCost: allEmployees.reduce((a, b) => a + b.salary, 0), billable: active.length },
+    byDepartment: byDepartment.map(d => ({ department: d.department || "Unknown", count: d._count.id, avg_util: d._avg.utilization || 0, total_salary: d._sum.salary || 0 })),
+    skills: Object.entries(skillMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
   })
 }

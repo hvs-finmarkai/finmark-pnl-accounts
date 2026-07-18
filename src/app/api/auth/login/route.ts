@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"
 
 import { NextRequest, NextResponse } from "next/server"
-import { getDb } from "@/lib/db"
+import { prisma } from "@/lib/prisma"
 import { createToken } from "@/lib/auth"
 import { compareSync } from "bcryptjs"
 
@@ -12,14 +12,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Email and password required" }, { status: 400 })
   }
 
-  const db = getDb()
-  const user = db.users.find(u => u.email === email)
+  const user = await prisma.user.findUnique({ where: { email } })
 
-  if (!user) {
-    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
-  }
-
-  if (!compareSync(password, user.password_hash)) {
+  if (!user || !compareSync(password, user.passwordHash)) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
   }
 
