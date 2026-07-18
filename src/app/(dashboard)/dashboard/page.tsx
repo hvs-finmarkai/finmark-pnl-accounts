@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+import Link from "next/link"
 import {
   DollarSign,
   TrendingUp,
@@ -8,6 +10,11 @@ import {
   AlertTriangle,
   BarChart3,
   Brain,
+  Plus,
+  FileText,
+  Users,
+  MessageSquare,
+  ChevronDown,
 } from "lucide-react"
 import { KPICard } from "@/components/shared/kpi-card"
 import { ChartCard } from "@/components/shared/chart-card"
@@ -93,13 +100,43 @@ const aiInsights = [
   { text: "Increase pricing for 2 accounts. Potential margin improvement: 4.6%.", action: "View Accounts" },
 ]
 
+function QuickActions() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <Button onClick={() => setOpen(!open)}>
+        <Plus className="h-4 w-4 mr-2" />Quick Actions<ChevronDown className="h-4 w-4 ml-2" />
+      </Button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-border bg-card shadow-elevated z-50 py-1">
+          <Link href="/clients" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+            <Users className="h-4 w-4 text-muted-foreground" />Add New Client
+          </Link>
+          <Link href="/projects" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+            <FolderKanban className="h-4 w-4 text-muted-foreground" />Create Project
+          </Link>
+          <Link href="/reports/exports" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+            <FileText className="h-4 w-4 text-muted-foreground" />Generate Report
+          </Link>
+          <Link href="/ai/chat" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />Ask AI
+          </Link>
+          <Link href="/admin/users" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted transition-colors">
+            <Plus className="h-4 w-4 text-muted-foreground" />Add User
+          </Link>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
         title="Dashboard"
         description="Welcome back, Arjun!"
-        actions={<Button>Quick Actions</Button>}
+        actions={<QuickActions />}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
