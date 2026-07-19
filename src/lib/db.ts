@@ -31,11 +31,11 @@ function createSeededData(): DB {
   const passwordHash = hashSync("admin123", 10)
 
   const users = [
-    { id: 1, email: "arjun@denave.com", name: "Arjun Mehta", password_hash: passwordHash, role: "admin", department: "Finance", is_active: 1 },
-    { id: 2, email: "pooja@denave.com", name: "Pooja Nair", password_hash: passwordHash, role: "manager", department: "Operations", is_active: 1 },
-    { id: 3, email: "rohan@denave.com", name: "Rohan Singh", password_hash: passwordHash, role: "manager", department: "Delivery", is_active: 1 },
-    { id: 4, email: "sneha@denave.com", name: "Sneha Iyer", password_hash: passwordHash, role: "analyst", department: "Engineering", is_active: 1 },
-    { id: 5, email: "vikram@denave.com", name: "Vikram Dev", password_hash: passwordHash, role: "analyst", department: "Engineering", is_active: 1 },
+    { id: 1, email: "arjun@finmark.ai", name: "Arjun Mehta", password_hash: passwordHash, role: "admin", department: "Finance", is_active: 1 },
+    { id: 2, email: "pooja@finmark.ai", name: "Pooja Nair", password_hash: passwordHash, role: "manager", department: "Operations", is_active: 1 },
+    { id: 3, email: "rohan@finmark.ai", name: "Rohan Singh", password_hash: passwordHash, role: "manager", department: "Delivery", is_active: 1 },
+    { id: 4, email: "sneha@finmark.ai", name: "Sneha Iyer", password_hash: passwordHash, role: "analyst", department: "Engineering", is_active: 1 },
+    { id: 5, email: "vikram@finmark.ai", name: "Vikram Dev", password_hash: passwordHash, role: "analyst", department: "Engineering", is_active: 1 },
   ]
 
   const clients = [
@@ -59,16 +59,16 @@ function createSeededData(): DB {
   ]
 
   const employees = [
-    { id: 1, name: "Arun Sharma", email: "arun@denave.com", department: "Engineering", role: "Senior Developer", salary: 180000, utilization: 95, status: "active", skills: "React,Node.js,TypeScript", project_id: 1, hire_date: "2022-03-15" },
-    { id: 2, name: "Priya Verma", email: "priya@denave.com", department: "Engineering", role: "Backend Developer", salary: 150000, utilization: 88, status: "active", skills: "Python,FastAPI,PostgreSQL", project_id: 2, hire_date: "2022-06-01" },
-    { id: 3, name: "Rohit Mehta", email: "rohit@denave.com", department: "Design", role: "UI/UX Designer", salary: 140000, utilization: 85, status: "active", skills: "Figma,React,CSS", project_id: 1, hire_date: "2023-01-10" },
-    { id: 4, name: "Anita Desai", email: "anita@denave.com", department: "Operations", role: "Business Analyst", salary: 130000, utilization: 82, status: "active", skills: "Excel,SQL,Tableau", project_id: 4, hire_date: "2022-09-20" },
-    { id: 5, name: "Karan Patel", email: "karan@denave.com", department: "Engineering", role: "DevOps Engineer", salary: 170000, utilization: 90, status: "active", skills: "AWS,Docker,Kubernetes", project_id: 4, hire_date: "2023-04-01" },
-    { id: 6, name: "Meera Joshi", email: "meera@denave.com", department: "Engineering", role: "QA Engineer", salary: 120000, utilization: 78, status: "active", skills: "Selenium,Jest,Cypress", project_id: 6, hire_date: "2023-07-15" },
-    { id: 7, name: "Amit Kumar", email: "amit@denave.com", department: "Engineering", role: "Frontend Developer", salary: 145000, utilization: 0, status: "bench", skills: "React,Vue,Angular", project_id: null, hire_date: "2022-11-01" },
-    { id: 8, name: "Deepa Singh", email: "deepa@denave.com", department: "Data", role: "Data Analyst", salary: 135000, utilization: 0, status: "bench", skills: "Python,SQL,PowerBI", project_id: null, hire_date: "2023-09-01" },
-    { id: 9, name: "Sanjay Rao", email: "sanjay@denave.com", department: "Engineering", role: "Full Stack Developer", salary: 160000, utilization: 72, status: "active", skills: "Next.js,Python,AWS", project_id: 5, hire_date: "2022-01-20" },
-    { id: 10, name: "Neha Gupta", email: "neha@denave.com", department: "HR", role: "HR Manager", salary: 140000, utilization: 65, status: "active", skills: "Recruitment,HRMS,Compliance", project_id: null, hire_date: "2021-05-10" },
+    { id: 1, name: "Arun Sharma", email: "arun@finmark.ai", department: "Engineering", role: "Senior Developer", salary: 180000, utilization: 95, status: "active", skills: "React,Node.js,TypeScript", project_id: 1, hire_date: "2022-03-15" },
+    { id: 2, name: "Priya Verma", email: "priya@finmark.ai", department: "Engineering", role: "Backend Developer", salary: 150000, utilization: 88, status: "active", skills: "Python,FastAPI,PostgreSQL", project_id: 2, hire_date: "2022-06-01" },
+    { id: 3, name: "Rohit Mehta", email: "rohit@finmark.ai", department: "Design", role: "UI/UX Designer", salary: 140000, utilization: 85, status: "active", skills: "Figma,React,CSS", project_id: 1, hire_date: "2023-01-10" },
+    { id: 4, name: "Anita Desai", email: "anita@finmark.ai", department: "Operations", role: "Business Analyst", salary: 130000, utilization: 82, status: "active", skills: "Excel,SQL,Tableau", project_id: 4, hire_date: "2022-09-20" },
+    { id: 5, name: "Karan Patel", email: "karan@finmark.ai", department: "Engineering", role: "DevOps Engineer", salary: 170000, utilization: 90, status: "active", skills: "AWS,Docker,Kubernetes", project_id: 4, hire_date: "2023-04-01" },
+    { id: 6, name: "Meera Joshi", email: "meera@finmark.ai", department: "Engineering", role: "QA Engineer", salary: 120000, utilization: 78, status: "active", skills: "Selenium,Jest,Cypress", project_id: 6, hire_date: "2023-07-15" },
+    { id: 7, name: "Amit Kumar", email: "amit@finmark.ai", department: "Engineering", role: "Frontend Developer", salary: 145000, utilization: 0, status: "bench", skills: "React,Vue,Angular", project_id: null, hire_date: "2022-11-01" },
+    { id: 8, name: "Deepa Singh", email: "deepa@finmark.ai", department: "Data", role: "Data Analyst", salary: 135000, utilization: 0, status: "bench", skills: "Python,SQL,PowerBI", project_id: null, hire_date: "2023-09-01" },
+    { id: 9, name: "Sanjay Rao", email: "sanjay@finmark.ai", department: "Engineering", role: "Full Stack Developer", salary: 160000, utilization: 72, status: "active", skills: "Next.js,Python,AWS", project_id: 5, hire_date: "2022-01-20" },
+    { id: 10, name: "Neha Gupta", email: "neha@finmark.ai", department: "HR", role: "HR Manager", salary: 140000, utilization: 65, status: "active", skills: "Recruitment,HRMS,Compliance", project_id: null, hire_date: "2021-05-10" },
   ]
 
   const transactions: any[] = []

@@ -28,7 +28,7 @@ export const useAppStore = create<AppState>((set) => ({
   sidebarOpen: true,
   sidebarCollapsed: false,
   theme: "dark",
-  currentOrg: "Denave India Pvt. Ltd.",
+  currentOrg: "Finmark.ai",
   dateRange: { from: "2025-01-01", to: "2025-05-31" },
   user: null,
   notifications: 0,

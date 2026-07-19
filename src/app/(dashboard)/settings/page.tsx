@@ -31,7 +31,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium">Organization Name</label>
-                  <input className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" defaultValue="Denave India Pvt. Ltd." />
+                  <input className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm" defaultValue="Finmark.ai" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Industry</label>

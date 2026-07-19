@@ -23,14 +23,14 @@ async function main() {
   const hash = hashSync("admin123", 10)
 
   const users = await Promise.all([
-    prisma.user.create({ data: { email: "arjun@denave.com", name: "Arjun Mehta", passwordHash: hash, role: "admin", department: "Finance" } }),
-    prisma.user.create({ data: { email: "pooja@denave.com", name: "Pooja Nair", passwordHash: hash, role: "manager", department: "Operations" } }),
-    prisma.user.create({ data: { email: "rohan@denave.com", name: "Rohan Singh", passwordHash: hash, role: "manager", department: "Delivery" } }),
-    prisma.user.create({ data: { email: "sneha@denave.com", name: "Sneha Iyer", passwordHash: hash, role: "analyst", department: "Engineering" } }),
-    prisma.user.create({ data: { email: "vikram@denave.com", name: "Vikram Dev", passwordHash: hash, role: "analyst", department: "Engineering" } }),
+    prisma.user.create({ data: { email: "arjun@finmark.ai", name: "Arjun Mehta", passwordHash: hash, role: "admin", department: "Finance" } }),
+    prisma.user.create({ data: { email: "pooja@finmark.ai", name: "Pooja Nair", passwordHash: hash, role: "manager", department: "Operations" } }),
+    prisma.user.create({ data: { email: "rohan@finmark.ai", name: "Rohan Singh", passwordHash: hash, role: "manager", department: "Delivery" } }),
+    prisma.user.create({ data: { email: "sneha@finmark.ai", name: "Sneha Iyer", passwordHash: hash, role: "analyst", department: "Engineering" } }),
+    prisma.user.create({ data: { email: "vikram@finmark.ai", name: "Vikram Dev", passwordHash: hash, role: "analyst", department: "Engineering" } }),
   ])
 
-  await prisma.organization.create({ data: { name: "Denave India Pvt. Ltd.", industry: "IT Services", country: "India", currency: "INR" } })
+  await prisma.organization.create({ data: { name: "Finmark.ai", industry: "IT Services", country: "India", currency: "INR" } })
 
   const clients = await Promise.all([
     prisma.client.create({ data: { name: "TechCorp Inc.", industry: "Technology", region: "North America", status: "active", contractValue: 25600000, healthScore: 92, contactPerson: "John Smith", contactEmail: "john@techcorp.com" } }),
@@ -53,16 +53,16 @@ async function main() {
   ])
 
   await Promise.all([
-    prisma.employee.create({ data: { name: "Arun Sharma", email: "arun@denave.com", department: "Engineering", role: "Senior Developer", salary: 180000, utilization: 95, status: "active", skills: "React,Node.js,TypeScript", projectId: projects[0].id, hireDate: new Date("2022-03-15") } }),
-    prisma.employee.create({ data: { name: "Priya Verma", email: "priya@denave.com", department: "Engineering", role: "Backend Developer", salary: 150000, utilization: 88, status: "active", skills: "Python,FastAPI,PostgreSQL", projectId: projects[1].id, hireDate: new Date("2022-06-01") } }),
-    prisma.employee.create({ data: { name: "Rohit Mehta", email: "rohit@denave.com", department: "Design", role: "UI/UX Designer", salary: 140000, utilization: 85, status: "active", skills: "Figma,React,CSS", projectId: projects[0].id, hireDate: new Date("2023-01-10") } }),
-    prisma.employee.create({ data: { name: "Anita Desai", email: "anita@denave.com", department: "Operations", role: "Business Analyst", salary: 130000, utilization: 82, status: "active", skills: "Excel,SQL,Tableau", projectId: projects[3].id, hireDate: new Date("2022-09-20") } }),
-    prisma.employee.create({ data: { name: "Karan Patel", email: "karan@denave.com", department: "Engineering", role: "DevOps Engineer", salary: 170000, utilization: 90, status: "active", skills: "AWS,Docker,Kubernetes", projectId: projects[3].id, hireDate: new Date("2023-04-01") } }),
-    prisma.employee.create({ data: { name: "Meera Joshi", email: "meera@denave.com", department: "Engineering", role: "QA Engineer", salary: 120000, utilization: 78, status: "active", skills: "Selenium,Jest,Cypress", projectId: projects[5].id, hireDate: new Date("2023-07-15") } }),
-    prisma.employee.create({ data: { name: "Amit Kumar", email: "amit@denave.com", department: "Engineering", role: "Frontend Developer", salary: 145000, utilization: 0, status: "bench", skills: "React,Vue,Angular", hireDate: new Date("2022-11-01") } }),
-    prisma.employee.create({ data: { name: "Deepa Singh", email: "deepa@denave.com", department: "Data", role: "Data Analyst", salary: 135000, utilization: 0, status: "bench", skills: "Python,SQL,PowerBI", hireDate: new Date("2023-09-01") } }),
-    prisma.employee.create({ data: { name: "Sanjay Rao", email: "sanjay@denave.com", department: "Engineering", role: "Full Stack Developer", salary: 160000, utilization: 72, status: "active", skills: "Next.js,Python,AWS", projectId: projects[4].id, hireDate: new Date("2022-01-20") } }),
-    prisma.employee.create({ data: { name: "Neha Gupta", email: "neha@denave.com", department: "HR", role: "HR Manager", salary: 140000, utilization: 65, status: "active", skills: "Recruitment,HRMS,Compliance", hireDate: new Date("2021-05-10") } }),
+    prisma.employee.create({ data: { name: "Arun Sharma", email: "arun@finmark.ai", department: "Engineering", role: "Senior Developer", salary: 180000, utilization: 95, status: "active", skills: "React,Node.js,TypeScript", projectId: projects[0].id, hireDate: new Date("2022-03-15") } }),
+    prisma.employee.create({ data: { name: "Priya Verma", email: "priya@finmark.ai", department: "Engineering", role: "Backend Developer", salary: 150000, utilization: 88, status: "active", skills: "Python,FastAPI,PostgreSQL", projectId: projects[1].id, hireDate: new Date("2022-06-01") } }),
+    prisma.employee.create({ data: { name: "Rohit Mehta", email: "rohit@finmark.ai", department: "Design", role: "UI/UX Designer", salary: 140000, utilization: 85, status: "active", skills: "Figma,React,CSS", projectId: projects[0].id, hireDate: new Date("2023-01-10") } }),
+    prisma.employee.create({ data: { name: "Anita Desai", email: "anita@finmark.ai", department: "Operations", role: "Business Analyst", salary: 130000, utilization: 82, status: "active", skills: "Excel,SQL,Tableau", projectId: projects[3].id, hireDate: new Date("2022-09-20") } }),
+    prisma.employee.create({ data: { name: "Karan Patel", email: "karan@finmark.ai", department: "Engineering", role: "DevOps Engineer", salary: 170000, utilization: 90, status: "active", skills: "AWS,Docker,Kubernetes", projectId: projects[3].id, hireDate: new Date("2023-04-01") } }),
+    prisma.employee.create({ data: { name: "Meera Joshi", email: "meera@finmark.ai", department: "Engineering", role: "QA Engineer", salary: 120000, utilization: 78, status: "active", skills: "Selenium,Jest,Cypress", projectId: projects[5].id, hireDate: new Date("2023-07-15") } }),
+    prisma.employee.create({ data: { name: "Amit Kumar", email: "amit@finmark.ai", department: "Engineering", role: "Frontend Developer", salary: 145000, utilization: 0, status: "bench", skills: "React,Vue,Angular", hireDate: new Date("2022-11-01") } }),
+    prisma.employee.create({ data: { name: "Deepa Singh", email: "deepa@finmark.ai", department: "Data", role: "Data Analyst", salary: 135000, utilization: 0, status: "bench", skills: "Python,SQL,PowerBI", hireDate: new Date("2023-09-01") } }),
+    prisma.employee.create({ data: { name: "Sanjay Rao", email: "sanjay@finmark.ai", department: "Engineering", role: "Full Stack Developer", salary: 160000, utilization: 72, status: "active", skills: "Next.js,Python,AWS", projectId: projects[4].id, hireDate: new Date("2022-01-20") } }),
+    prisma.employee.create({ data: { name: "Neha Gupta", email: "neha@finmark.ai", department: "HR", role: "HR Manager", salary: 140000, utilization: 65, status: "active", skills: "Recruitment,HRMS,Compliance", hireDate: new Date("2021-05-10") } }),
   ])
 
   const months = ["2025-01", "2025-02", "2025-03", "2025-04", "2025-05"]

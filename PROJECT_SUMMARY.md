@@ -3,7 +3,7 @@
 ## Live URLs
 - Production: https://finmark-pnl-accounts.vercel.app
 - GitHub: https://github.com/hvs-finmarkai/finmark-pnl-accounts
-- Login: arjun@denave.com / admin123
+- Login: arjun@finmark.ai / admin123
 
 ## Tech Stack
 - Next.js 14 (App Router + API Routes)

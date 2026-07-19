@@ -6,7 +6,7 @@ Real-time Project P&L Automation Platform with working authentication, database,
 
 https://finmark-pnl-accounts.vercel.app
 
-Login: arjun@denave.com / admin123
+Login: arjun@finmark.ai / admin123
 
 ## Tech Stack
 
